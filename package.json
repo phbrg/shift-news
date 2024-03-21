@@ -1,10 +1,9 @@
 {
   "name": "shift-news",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "version": "1.0",
+  "description": "A nest.js API that copies Tab News",
+  "author": "phbrg",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
