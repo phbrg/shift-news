@@ -18,29 +18,33 @@ model User {
   ups       Int      @default(0)
   comments  Int      @default(0)
   picture   String?
-  createdAt DateTime
+  createdAt DateTime @default(now())
   updatedAt DateTime
 }
 
 model Post {
-  id        String    @id @default(uuid())
-  title     String
-  body      String
-  createdAt DateTime
-  updatedAt DateTime
-  ups       Up[]
-  comments  Comment[]
+  id            String    @id @default(uuid())
+  title         String
+  body          String
+  totalUps      Int
+  totalComments Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  ups           Up[]
+  comments      Comment[]
 }
 
 model Up {
-  id     String @id @default(uuid())
-  Post   Post   @relation(fields: [postId], references: [id])
-  postId String
+  id        String   @id @default(uuid())
+  Post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  postId    String
 }
 
 model Comment {
-  id     String @id @default(uuid())
-  body   String
-  Post   Post   @relation(fields: [postId], references: [id])
-  postId String
+  id        String   @id @default(uuid())
+  body      String
+  createdAt DateTime @default(now())
+  Post      Post     @relation(fields: [postId], references: [id])
+  postId    String
 }
