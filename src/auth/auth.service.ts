@@ -1,38 +1,40 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt"
-import { PrismaService } from "src/prisma/prisma.service";
 import { LoginDTO } from "./dto/login.dto";
+import { UserService } from "src/user/user.service";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly Jwt: JwtService,
+    private readonly jwt: JwtService,
+    private readonly userService: UserService
   ) {}
 
-  createToken(user: { email: string; role: number; id: string }) {
+  createToken(id: string, email: string, role: number) {
     return {
-      token: this.Jwt.sign(
+      token: this.jwt.sign(
         {
-          id: user.id,
-          email: user.email,
-          role: user.role,
+          id: id,
+          email: email,
+          role: role,
         },
         {
           expiresIn: '7d',
-          subject: user.id,
+          subject: id,
         },
       ),
       user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
+        id: id,
+        email: email,
+        role: role,
       },
     };
   }
 
   checkToken(token: string) {
     try {
-      const data = this.Jwt.verify(token, {
+      const data = this.jwt.verify(token, {
         secret: process.env.JWT_KEY,
       });
       return data;
@@ -51,6 +53,16 @@ export class AuthService {
   }
 
   async login({email, password}: LoginDTO) {
-    //
+    const user = await this.userService.getUser('email', email);
+    if(!user) {
+      throw new BadRequestException('Invalid email or/and password.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if(!isPasswordValid) {
+      throw new BadRequestException('Invalid email or/and password.');
+    }
+
+    return this.createToken(user.id, email, user.role);
   }
 }
