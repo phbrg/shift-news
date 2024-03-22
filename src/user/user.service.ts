@@ -61,13 +61,13 @@ export class UserService {
     return user;
   }
 
-  async editUser({ name, email, password, confirmPassword }: EditUserDTO, req: Request) {
+  async editUser({ name, email, password, confirmPassword }: EditUserDTO, req: any) {
     if(!name && !email && !password && !confirmPassword) {
       throw new BadRequestException('Invalid data.');
     } else if(password && !confirmPassword || !password && confirmPassword) {
       throw new BadRequestException('Invalid data.');
     }
-
+    
     let newUser = {};
 
     if(name) newUser['name'] = name; 
@@ -77,8 +77,10 @@ export class UserService {
       const hashedPassword = bcrypt.hashSync(password, salt);
       newUser['password'] = hashedPassword;
     } 
-    
-    return 'ok';
-    // return this.prisma.user.update()
+
+    return this.prisma.user.update({
+      data: newUser,
+      where: { id: req.user.id }
+    });
   }
 }
