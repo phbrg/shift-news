@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, forwardRef } from "@nestjs/common";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import * as bcrypt from "bcrypt";
@@ -9,7 +9,7 @@ import { AuthService } from "src/auth/auth.service";
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authService: AuthService
+    @Inject(forwardRef(() => AuthService)) private readonly authService
   ) {}
 
   async registerUser({ name, email, password, confirmPassword }: CreateUserDTO) {
@@ -77,9 +77,8 @@ export class UserService {
       const hashedPassword = bcrypt.hashSync(password, salt);
       newUser['password'] = hashedPassword;
     } 
-
-    return req;
     
+    return 'ok';
     // return this.prisma.user.update()
   }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, UnauthorizedException, forwardRef } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt"
 import { LoginDTO } from "./dto/login.dto";
 import { UserService } from "src/user/user.service";
@@ -8,7 +8,7 @@ import * as bcrypt from "bcrypt";
 export class AuthService {
   constructor(
     private readonly jwt: JwtService,
-    private readonly userService: UserService
+    @Inject(forwardRef(() => UserService)) private readonly userService
   ) {}
 
   createToken(id: string, email: string, role: number) {
