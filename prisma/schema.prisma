@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Int      @default(1)
-  posts     Int      @default(0)
-  ups       Int      @default(0)
-  comments  Int      @default(0)
-  picture   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password      String
+  role          Int      @default(1)
+  totalPosts    Int      @default(0)
+  totalUps      Int      @default(0)
+  totalComments Int      @default(0)
+  picture       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  Post          Post[]
 }
 
 model Post {
@@ -30,6 +31,8 @@ model Post {
   totalComments Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime
+  User          User      @relation(fields: [userId], references: [id])
+  userId        String
   ups           Up[]
   comments      Comment[]
 }

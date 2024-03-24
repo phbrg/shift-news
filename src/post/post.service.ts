@@ -7,12 +7,13 @@ export class PostService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async createPost({ title, body }: CreatePostDTO) {
+  async createPost({ title, body }: CreatePostDTO, req: any) {
     return this.prisma.post.create({
       data: {
         title,
         body,
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        userId: req.user.id
       }, 
       select: {
         id: true,
@@ -29,29 +30,26 @@ export class PostService {
       case 'id':
         if(!param.data) {
           throw new BadRequestException('Invalid data.');
-        } else {
-          res = await this.prisma.post.findUnique({
-            where: { id: param.data }
-          });
         }
+        res = await this.prisma.post.findUnique({
+          where: { id: param.data }
+        });
         break;
       case 'title':
         if(!param.data) {
           throw new BadRequestException('Invalid data.');
-        } else {
-          res = await this.prisma.post.findMany({
-            where: { title: { contains: param.data } }
-          });
         }
+        res = await this.prisma.post.findMany({
+          where: { title: { contains: param.data } }
+        });
         break;
       case 'body':
         if(!param.data) {
           throw new BadRequestException('Invalid data.');
-        } else {
-          res = await this.prisma.post.findMany({
-            where: { body: { contains: param.data } }
-          });
         }
+        res = await this.prisma.post.findMany({
+          where: { body: { contains: param.data } }
+        });
         break;
       case 'up':
         if(!param.data) {
@@ -75,12 +73,11 @@ export class PostService {
           });
         }
         break;
-      case 'date':
-        // TODO
+      case undefined: 
         res = this.prisma.post.findMany();
         break;
       default:
-        res = this.prisma.post.findMany();
+        throw new BadRequestException('Invalid search.');
     }
 
     if(!res || res.length == 0) {

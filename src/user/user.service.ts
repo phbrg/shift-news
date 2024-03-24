@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, forwardRef } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import * as bcrypt from "bcrypt";
@@ -17,7 +17,7 @@ export class UserService {
       throw new BadRequestException('Password does not match.');
     }
 
-    const emailAlredyRegistered = await this.getUser('email', email);
+    const emailAlredyRegistered = await this.getUser({ type: 'email', data: email }, null);
     if(emailAlredyRegistered) {
       throw new BadRequestException('Email alredy registered.');
     }
@@ -40,25 +40,100 @@ export class UserService {
     });
   }
 
-  async getUser(query: string, data: string) {
-    let user = null;
+  async getUser(param: {type: string, data: string}, req: any) {
+    let res = null;
+    let switcher: any;
 
-    switch(query) {
+    switch(param.type) {
       case 'id':
-        user = this.prisma.user.findUnique({
-          where: { id: data }
-        })
+        if(!param.data) {
+          throw new BadRequestException('Invalid search.');
+        }
+        switcher = await this.prisma.user.findUnique({
+          where: { id: param.data }
+        });
+        res = {
+          id: switcher.id,
+          name: switcher.name,
+          email: switcher.email,
+          role: switcher.role,
+          totalPosts: switcher.totalPosts,
+          totalUps: switcher.totalUps,
+          totalComments: switcher.totalComments,
+          picture: switcher.picture,
+          createdAt: switcher.createdAt,
+          updatedAt: switcher.updatedAt,
+        }
         break;
       case 'email':
-        user = this.prisma.user.findUnique({
-          where: { email: data }
-        })
+        if(!param.data) {
+          throw new BadRequestException('Invalid search.');
+        }
+        switcher = await this.prisma.user.findUnique({
+          where: { email: param.data }
+        });
+        res = {
+          id: switcher.id,
+          name: switcher.name,
+          email: switcher.email,
+          role: switcher.role,
+          totalPosts: switcher.totalPosts,
+          totalUps: switcher.totalUps,
+          totalComments: switcher.totalComments,
+          picture: switcher.picture,
+          createdAt: switcher.createdAt,
+          updatedAt: switcher.updatedAt,
+        }
         break;
-      default: 
-        user = null;
+      case 'name':
+        if(!param.data) {
+          throw new BadRequestException('Invalid search.');
+        }
+        switcher = await this.prisma.user.findMany({
+          where: { name:{ contains: param.data } }
+        });
+        res = [];
+        for(let user of switcher) {
+          res.push({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            totalPosts: user.totalPosts,
+            totalUps: user.totalUps,
+            totalComments: user.totalComments,
+            picture: user.picture,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+          })
+        }
+        break;
+      case undefined:
+        switcher = await this.prisma.user.findUnique({
+          where: { id: req.user.id }
+        });
+        res = {
+          id: switcher.id,
+          name: switcher.name,
+          email: switcher.email,
+          role: switcher.role,
+          totalPosts: switcher.totalPosts,
+          totalUps: switcher.totalUps,
+          totalComments: switcher.totalComments,
+          picture: switcher.picture,
+          createdAt: switcher.createdAt,
+          updatedAt: switcher.updatedAt,
+        }
+        break;
+      default:
+        throw new BadRequestException('Invalid search.');
     }
 
-    return user;
+    if(!res || res.length == 0) {
+      throw new NotFoundException('User not found.');
+    } else {
+      return res;
+    }
   }
 
   async editUser({ name, email, password, confirmPassword }: EditUserDTO, req: any) {
