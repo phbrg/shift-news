@@ -3,11 +3,13 @@ import { JwtService } from "@nestjs/jwt"
 import { LoginDTO } from "./dto/login.dto";
 import { UserService } from "src/user/user.service";
 import * as bcrypt from "bcrypt";
+import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwt: JwtService,
+    private readonly prisma: PrismaService,
     @Inject(forwardRef(() => UserService)) private readonly userService
   ) {}
 
@@ -53,7 +55,9 @@ export class AuthService {
   }
 
   async login({email, password}: LoginDTO) {
-    const user = await this.userService.getUser('email', email);
+    const user = await this.prisma.user.findUnique({
+      where: { email: email }
+    }) || null;
     if(!user) {
       throw new BadRequestException('Invalid email or/and password.');
     }

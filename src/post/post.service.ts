@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreatePostDTO } from "./dto/create-post.dto";
 @Injectable()
@@ -85,5 +85,31 @@ export class PostService {
     } else {
       return res;
     }
+  }
+
+  async editPost(id: string, body: {title: string, body: string}, req: any) {
+    if(!id || !body || !body.title && !body.body) {
+      throw new BadRequestException('Invalid data.');
+    }
+
+    const post = await this.prisma.post.findUnique({
+      where: { id: id }
+    }) || null;
+    if(!post) {
+      throw new BadRequestException('Inavlid post.');
+    } else if(post.userId !== req.user.id && req.user.role !== 2) {
+      throw new ForbiddenException('Invalid post.');
+    }
+
+    const newPost = {
+      updatedAt: new Date()
+    };
+    if(body.title) newPost['title'] = body.title;
+    if(body.body) newPost['body'] = body.body;
+
+    return this.prisma.post.update({
+      data: newPost,
+      where: { id: id }
+    });
   }
 }

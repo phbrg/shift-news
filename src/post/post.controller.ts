@@ -21,7 +21,7 @@ export class PostController {
   }
 
   @Put(':id')
-  async editPost() {
-    
+  async editPost(@Param() param: any, @Body() body: any, @Req() req: Request) {
+    return this.postService.editPost(param.id, body, req);
   }
 }
