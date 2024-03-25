@@ -29,4 +29,9 @@ export class PostController {
   async deletePost(@Param() param: any, @Req() req: Request) {
     return this.postService.deletePost(param.id, req);
   }
+
+  @Post('up/:id')
+  async upPost(@Param() param: any, @Req() req: Request) {
+    return this.postService.upPost(param.id, req);
+  }
 }

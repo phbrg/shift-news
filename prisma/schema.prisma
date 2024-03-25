@@ -9,18 +9,20 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
-  email         String   @unique
+  email         String    @unique
   password      String
-  role          Int      @default(1)
-  totalPosts    Int      @default(0)
-  totalUps      Int      @default(0)
-  totalComments Int      @default(0)
+  role          Int       @default(1)
+  totalPosts    Int       @default(0)
+  totalUps      Int       @default(0)
+  totalComments Int       @default(0)
   picture       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
   Post          Post[]
+  Up            Up[]
+  Comment       Comment[]
 }
 
 model Post {
@@ -30,7 +32,7 @@ model Post {
   totalUps      Int       @default(0)
   totalComments Int       @default(0)
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime  @default(now())
   User          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId        String?
   ups           Up[]
@@ -41,13 +43,18 @@ model Up {
   id        String   @id @default(uuid())
   Post      Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
   postId    String?
+  User      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
   createdAt DateTime @default(now())
 }
 
 model Comment {
   id        String   @id @default(uuid())
   body      String
-  createdAt DateTime @default(now())
   Post      Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
   postId    String?
+  User      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }

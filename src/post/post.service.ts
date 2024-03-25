@@ -119,4 +119,54 @@ export class PostService {
       throw new ForbiddenException('You cant delete this post.');
     }
   }
+
+  async upPost(id: string, req: any) {
+    const post = await this.prisma.post.findUnique({
+      where: { id: id }
+    }) || null;
+    if(!post) throw new NotFoundException('Post not found.');
+
+    const upExist = await this.prisma.up.findFirst({
+      where: {
+        postId: id,
+        userId: req.user.id,
+      },
+    }) || null;
+    if(upExist) {
+      await this.prisma.post.update({
+        data: { totalUps: { decrement: 1 } },
+        where: { id: id }
+      });
+      await this.prisma.user.update({
+        data: { totalUps: { decrement: 1 } },
+        where: { id: req.user.id }
+      });
+
+      return { 
+      message: 'Up deleted.', 
+      up: await this.prisma.up.delete({
+        where: { id: upExist.id }
+      }) 
+    }
+    } else {
+      await this.prisma.post.update({
+        data: { totalUps: { increment: 1 } },
+        where: { id: id }
+      });
+      await this.prisma.user.update({
+        data: { totalUps: { increment: 1 } },
+        where: { id: req.user.id }
+      });
+  
+      return { 
+        message: 'Up created.', 
+        up: await this.prisma.up.create({
+          data: {
+            postId: id,
+            userId: req.user.id
+          }
+        }) 
+      }
+    }
+  }
 }
