@@ -15,9 +15,9 @@ export class UserController {
     return this.userService.editUser(body, req);
   }
 
-  @Delete()
-  async deleteUser(@Req() req: Request) {
-    return this.userService.deleteUser(req);
+  @Delete(':id?')
+  async deleteUser(@Param() param: any, @Req() req: Request) {
+    return this.userService.deleteUser(param.id, req);
   }
 
   @Get(':type?/:data?')

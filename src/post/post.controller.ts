@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { PostService } from "./post.service";
 import { AuthGuard } from "src/guards/auth.guard";
 import { CreatePostDTO } from "./dto/create-post.dto";
@@ -23,5 +23,10 @@ export class PostController {
   @Put(':id')
   async editPost(@Param() param: any, @Body() body: any, @Req() req: Request) {
     return this.postService.editPost(param.id, body, req);
+  }
+
+  @Delete(':id')
+  async deletePost(@Param() param: any, @Req() req: Request) {
+    return this.postService.deletePost(param.id, req);
   }
 }

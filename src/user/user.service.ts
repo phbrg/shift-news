@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import * as bcrypt from "bcrypt";
@@ -13,9 +13,7 @@ export class UserService {
   ) {}
 
   async registerUser({ name, email, password, confirmPassword }: CreateUserDTO) {
-    if(password !== confirmPassword) {
-      throw new BadRequestException('Password does not match.');
-    }
+    if(password !== confirmPassword) throw new BadRequestException('Password does not match.');
 
     let emailAlredyRegistered = null;
     try {
@@ -23,9 +21,7 @@ export class UserService {
     } catch(err) {
       // PREVENTE APP CRASH ON NOT FOUND USER
     }
-    if(emailAlredyRegistered) {
-      throw new BadRequestException('Email alredy registered.');
-    }
+    if(emailAlredyRegistered) throw new BadRequestException('Email alredy registered.');
 
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
@@ -51,9 +47,7 @@ export class UserService {
 
     switch(param.type) {
       case 'id':
-        if(!param.data) {
-          throw new BadRequestException('Invalid search.');
-        }
+        if(!param.data) throw new BadRequestException('Invalid search.');
 
         switcher = await this.prisma.user.findUnique({
           where: { id: param.data }
@@ -77,9 +71,7 @@ export class UserService {
         }
         break;
       case 'email':
-        if(!param.data) {
-          throw new BadRequestException('Invalid search.');
-        }
+        if(!param.data) throw new BadRequestException('Invalid search.');
 
         switcher = await this.prisma.user.findUniqueOrThrow({
           where: { email: param.data }
@@ -103,9 +95,7 @@ export class UserService {
         }
         break;
       case 'name':
-        if(!param.data) {
-          throw new BadRequestException('Invalid search.');
-        }
+        if(!param.data) throw new BadRequestException('Invalid search.');
         
         switcher = await this.prisma.user.findMany({
           where: { name:{ contains: param.data } }
@@ -161,11 +151,8 @@ export class UserService {
   }
 
   async editUser({ name, email, password, confirmPassword }: EditUserDTO, req: any) {
-    if(!name && !email && !password && !confirmPassword) {
-      throw new BadRequestException('Invalid data.');
-    } else if(password && !confirmPassword || !password && confirmPassword) {
-      throw new BadRequestException('Invalid data.');
-    }
+    if(!name && !email && !password && !confirmPassword) throw new BadRequestException('Invalid data.');
+    if(password && !confirmPassword || !password && confirmPassword) throw new BadRequestException('Invalid data.');
     
     let newUser = {
       updatedAt: new Date()
@@ -185,9 +172,22 @@ export class UserService {
     });
   }
 
-  async deleteUser(req: any) {
-    return this.prisma.user.delete({
-      where: { id: req.user.id }
-    });
+  async deleteUser(id: string, req: any) {
+    const userExist = await this.prisma.user.findUnique({
+      where: { id: id }
+    }) || null;
+    if(!userExist) throw new BadRequestException('Invalid user.');
+
+    if(id && req.user.role == 2) {
+      return this.prisma.user.delete({
+        where: { id: id }
+      });
+    } else if(!id || id == req.user.id) {
+      return this.prisma.user.delete({
+        where: { id: req.user.id }
+      });
+    } else {
+      throw new ForbiddenException('You cant delete this user.');
+    }
   }
 }

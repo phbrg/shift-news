@@ -28,25 +28,19 @@ export class PostService {
 
     switch(param.type) {
       case 'id':
-        if(!param.data) {
-          throw new BadRequestException('Invalid data.');
-        }
+        if(!param.data) throw new BadRequestException('Invalid data.');
         res = await this.prisma.post.findUnique({
           where: { id: param.data }
         });
         break;
       case 'title':
-        if(!param.data) {
-          throw new BadRequestException('Invalid data.');
-        }
+        if(!param.data) throw new BadRequestException('Invalid data.');
         res = await this.prisma.post.findMany({
           where: { title: { contains: param.data } }
         });
         break;
       case 'body':
-        if(!param.data) {
-          throw new BadRequestException('Invalid data.');
-        }
+        if(!param.data) throw new BadRequestException('Invalid data.');
         res = await this.prisma.post.findMany({
           where: { body: { contains: param.data } }
         });
@@ -88,16 +82,14 @@ export class PostService {
   }
 
   async editPost(id: string, body: {title: string, body: string}, req: any) {
-    if(!id || !body || !body.title && !body.body) {
-      throw new BadRequestException('Invalid data.');
-    }
+    if(!id || !body || !body.title && !body.body) throw new BadRequestException('Invalid data.');
 
     const post = await this.prisma.post.findUnique({
       where: { id: id }
     }) || null;
     if(!post) {
       throw new BadRequestException('Inavlid post.');
-    } else if(post.userId !== req.user.id && req.user.role !== 2) {
+    } else if(post.userId && post.userId !== req.user.id && req.user.role !== 2) {
       throw new ForbiddenException('Invalid post.');
     }
 
@@ -111,5 +103,20 @@ export class PostService {
       data: newPost,
       where: { id: id }
     });
+  }
+
+  async deletePost(id: string, req: any) {
+    const post = await this.prisma.post.findUnique({
+      where: { id: id }
+    }) || null;
+    if(!post) throw new BadRequestException('Invalid Post.');
+
+    if(post.userId && post.userId == req.user.id || req.user.role == 2) {
+      return this.prisma.post.delete({
+        where:{ id: id }
+      });
+    } else {
+      throw new ForbiddenException('You cant delete this post.');
+    }
   }
 }
