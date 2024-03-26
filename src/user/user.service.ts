@@ -4,8 +4,6 @@ import { PrismaService } from "src/prisma/prisma.service";
 import * as bcrypt from "bcrypt";
 import { EditUserDTO } from "./dto/edit-user.dto";
 import { AuthService } from "src/auth/auth.service";
-import { writeFile } from "fs";
-import { join } from "path";
 
 @Injectable()
 export class UserService {
@@ -168,8 +166,8 @@ export class UserService {
       newUser['password'] = hashedPassword;
     }
     if(picture) {
-      const pictureName = this.uploadFile(picture, req.user.id);
-      newUser['picture'] = pictureName;
+      const pictureBase64 = this.uploadFile(picture, req.user.id);
+      newUser['picture'] = pictureBase64;
     }
 
     return this.prisma.user.update({
@@ -206,15 +204,14 @@ export class UserService {
       throw new BadRequestException('Invalid file.');
     }
 
-    console.log(file);
+    file.originalname = `${(file.originalname.split('.')[0]) + '-' + (userId)}.${file.originalname.split('.')[1]}`
 
-    const pictureName = `${(file.originalname.split('.')[0]) + '-' + (userId)}.${file.originalname.split('.')[1]}`
-    writeFile(
-      join(__dirname, '..', '..', 'storage', pictureName), 
-      file.buffer, 
-      (err) => {if(err) console.log(err)}
-    );
+    // writeFile(
+    //   join(__dirname, '..', '..', 'storage', pictureName), 
+    //   file.buffer, 
+    //   (err) => {if(err) console.log(err)}
+    // );
 
-    return pictureName;
+    return file.buffer.toString('base64');
   }
 }
