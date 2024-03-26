@@ -137,10 +137,12 @@ export class PostService {
         data: { totalUps: { decrement: 1 } },
         where: { id: id }
       });
-      await this.prisma.user.update({
-        data: { totalUps: { decrement: 1 } },
-        where: { id: req.user.id }
-      });
+      if(post.userId) {
+        await this.prisma.user.update({
+          data: { totalUps: { decrement: 1 } },
+          where: { id: post.userId }
+        });
+      }
 
       return { 
       message: 'Up deleted.', 
@@ -153,10 +155,12 @@ export class PostService {
         data: { totalUps: { increment: 1 } },
         where: { id: id }
       });
-      await this.prisma.user.update({
-        data: { totalUps: { increment: 1 } },
-        where: { id: req.user.id }
-      });
+      if(post.userId) {
+        await this.prisma.user.update({
+          data: { totalUps: { increment: 1 } },
+          where: { id: post.userId }
+        });
+      }
   
       return { 
         message: 'Up created.', 

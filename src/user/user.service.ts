@@ -4,6 +4,8 @@ import { PrismaService } from "src/prisma/prisma.service";
 import * as bcrypt from "bcrypt";
 import { EditUserDTO } from "./dto/edit-user.dto";
 import { AuthService } from "src/auth/auth.service";
+import { writeFile } from "fs";
+import { join } from "path";
 
 @Injectable()
 export class UserService {
@@ -150,10 +152,10 @@ export class UserService {
     }
   }
 
-  async editUser({ name, email, password, confirmPassword }: EditUserDTO, req: any) {
-    if(!name && !email && !password && !confirmPassword) throw new BadRequestException('Invalid data.');
+  async editUser({ name, email, password, confirmPassword }: EditUserDTO, req: any, picture?: any) {
+    if(!name && !email && !password && !confirmPassword && !picture) throw new BadRequestException('Invalid data.');
     if(password && !confirmPassword || !password && confirmPassword) throw new BadRequestException('Invalid data.');
-    
+
     let newUser = {
       updatedAt: new Date()
     };
@@ -164,7 +166,11 @@ export class UserService {
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
       newUser['password'] = hashedPassword;
-    } 
+    }
+    if(picture) {
+      const pictureName = this.uploadFile(picture, req.user.id);
+      newUser['picture'] = pictureName;
+    }
 
     return this.prisma.user.update({
       data: newUser,
@@ -189,5 +195,26 @@ export class UserService {
     } else {
       throw new ForbiddenException('You cant delete this user.');
     }
+  }
+
+  uploadFile(file: any, userId: string) {
+    const fileNameRegex = /^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9]{1,5})$/
+    if(!fileNameRegex.test(file.originalname)) throw new BadRequestException('Invalid file');
+
+    const allowedFileTypes = ['png', 'jpg', 'jpeg'];
+    if(!allowedFileTypes.includes(file.originalname.split('.')[1])) {
+      throw new BadRequestException('Invalid file.');
+    }
+
+    console.log(file);
+
+    const pictureName = `${(file.originalname.split('.')[0]) + '-' + (userId)}.${file.originalname.split('.')[1]}`
+    writeFile(
+      join(__dirname, '..', '..', 'storage', pictureName), 
+      file.buffer, 
+      (err) => {if(err) console.log(err)}
+    );
+
+    return pictureName;
   }
 }
