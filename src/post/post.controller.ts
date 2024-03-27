@@ -16,22 +16,22 @@ export class PostController {
   }
 
   @Get(':type?/:data?')
-  async getPost(@Param() param: any) {
+  async getPost(@Param() param: { type: string, data: string }) {
     return this.postService.getPosts(param);
   }
 
   @Put(':id')
-  async editPost(@Param() param: any, @Body() body: any, @Req() req: Request) {
+  async editPost(@Param() param: { id: string }, @Body() body: any, @Req() req: Request) {
     return this.postService.editPost(param.id, body, req);
   }
 
   @Delete(':id')
-  async deletePost(@Param() param: any, @Req() req: Request) {
+  async deletePost(@Param() param: { id: string }, @Req() req: Request) {
     return this.postService.deletePost(param.id, req);
   }
 
   @Post('up/:id')
-  async upPost(@Param() param: any, @Req() req: Request) {
+  async upPost(@Param() param: { id: string }, @Req() req: Request) {
     return this.postService.upPost(param.id, req);
   }
 }

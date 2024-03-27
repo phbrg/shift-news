@@ -205,13 +205,6 @@ export class UserService {
     }
 
     file.originalname = `${(file.originalname.split('.')[0]) + '-' + (userId)}.${file.originalname.split('.')[1]}`
-
-    // writeFile(
-    //   join(__dirname, '..', '..', 'storage', pictureName), 
-    //   file.buffer, 
-    //   (err) => {if(err) console.log(err)}
-    // );
-
     return file.buffer.toString('base64');
   }
 }

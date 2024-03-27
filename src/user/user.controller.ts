@@ -23,12 +23,12 @@ export class UserController {
   }
 
   @Delete(':id?')
-  async deleteUser(@Param() param: any, @Req() req: Request) {
+  async deleteUser(@Param() param: { id: string }, @Req() req: Request) {
     return this.userService.deleteUser(param.id, req);
   }
 
   @Get(':type?/:data?')
-  async getUser(@Param() param: any, @Req() req: Request) {
+  async getUser(@Param() param: { type: string, data: string }, @Req() req: Request) {
     return this.userService.getUser(param, req);
   }
 }

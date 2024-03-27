@@ -12,13 +12,7 @@ export class PostService {
       data: {
         title,
         body,
-        updatedAt: new Date(),
         userId: req.user.id
-      }, 
-      select: {
-        id: true,
-        title: true,
-        body: true
       }
     });
   }
@@ -87,11 +81,8 @@ export class PostService {
     const post = await this.prisma.post.findUnique({
       where: { id: id }
     }) || null;
-    if(!post) {
-      throw new BadRequestException('Inavlid post.');
-    } else if(post.userId && post.userId !== req.user.id && req.user.role !== 2) {
-      throw new ForbiddenException('Invalid post.');
-    }
+    if(!post) throw new BadRequestException('Inavlid post.');
+    if(post.userId && post.userId !== req.user.id && req.user.role !== 2 || !post.userId && req.user.role !== 2) throw new ForbiddenException('Invalid post.'); // is admin || owner
 
     const newPost = {
       updatedAt: new Date()
@@ -110,14 +101,11 @@ export class PostService {
       where: { id: id }
     }) || null;
     if(!post) throw new BadRequestException('Invalid Post.');
+    if(post.userId && post.userId !== req.user.id && req.user.role == 2 || !post.userId && req.user.role !== 2) throw new ForbiddenException('You cant delete this post.'); // is admin || owner
 
-    if(post.userId && post.userId == req.user.id || req.user.role == 2) {
-      return this.prisma.post.delete({
-        where:{ id: id }
-      });
-    } else {
-      throw new ForbiddenException('You cant delete this post.');
-    }
+    return this.prisma.post.delete({
+      where:{ id: id }
+    });
   }
 
   async upPost(id: string, req: any) {

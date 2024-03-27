@@ -7,9 +7,10 @@ import { AuthModule } from "src/auth/auth.module";
 @Module({
   imports: [
     PrismaModule,
-    forwardRef(() => AuthModule),
+    AuthModule,
   ],
   controllers: [PostController],
-  providers: [PostService]
+  providers: [PostService],
+  exports: [PostService]
 })
 export class PostModule {}
