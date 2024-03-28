@@ -13,12 +13,15 @@ export class UserController {
   
   @UseInterceptors(FileInterceptor('picture'))
   @Put()
-  async editUser(@Body() body: EditUserDTO, @Req() req: Request, @UploadedFile(new ParseFilePipe({
-    validators: [
-      new FileTypeValidator({ fileType: 'image/*' }),
-      new MaxFileSizeValidator({ maxSize: 1024 * 300 }) // 300 KB
-    ]
-  })) picture: Express.Multer.File) {
+  async editUser(@Body() body: EditUserDTO, @Req() req: Request, @UploadedFile(
+    new ParseFilePipe({
+      validators: [
+        new FileTypeValidator({ fileType: 'image/*' }),
+        new MaxFileSizeValidator({ maxSize: 1024 * 300 }) // 300 KB
+      ],
+      fileIsRequired: false
+    })
+  ) picture?: Express.Multer.File) {
     return this.userService.editUser(body, req, picture);
   }
 

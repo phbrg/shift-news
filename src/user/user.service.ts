@@ -151,7 +151,7 @@ export class UserService {
 
   async editUser({ name, email, password, confirmPassword }: EditUserDTO, req: any, picture?: any) {
     if(!name && !email && !password && !confirmPassword && !picture) throw new BadRequestException('Invalid data.');
-    if(password && !confirmPassword || !password && confirmPassword) throw new BadRequestException('Invalid data.');
+    if(password && !confirmPassword || password && password !== confirmPassword) throw new BadRequestException('Invalid data.');
 
     let newUser = {
       updatedAt: new Date()
