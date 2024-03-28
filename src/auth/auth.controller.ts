@@ -22,7 +22,8 @@ export class AuthController {
     return this.userService.registerUser(body);
   }
 
-  // @Post('forgetpassword')
+  // not working | [Nest] 16380  - 27/03/2024, 17:02:57   ERROR [MailerService] Transporter is ready ?????????
+  // @Post('forgetpassword') 
   // async forgetPassword(@Body() body: { email: string }) {
   //   return this.authService.forgetPassword(body.email);
   // }

@@ -15,12 +15,9 @@ export class UserService {
   async registerUser({ name, email, password, confirmPassword }: CreateUserDTO) {
     if(password !== confirmPassword) throw new BadRequestException('Password does not match.');
 
-    let emailAlredyRegistered = null;
-    try {
-      emailAlredyRegistered = await this.getUser({ type: 'email', data: email }, null);
-    } catch(err) {
-      // PREVENTE APP CRASH ON NOT FOUND USER
-    }
+    const emailAlredyRegistered = this.prisma.user.findUnique({
+      where: { email: email }
+    });
     if(emailAlredyRegistered) throw new BadRequestException('Email alredy registered.');
 
     const salt = bcrypt.genSaltSync(10);
@@ -41,7 +38,7 @@ export class UserService {
     });
   }
 
-  async getUser(param: {type: string, data: string}, req: any) {
+  async getUser(param: {type: string, data: string}, req?: any) {
     let res = null;
     let switcher: any;
 
@@ -73,7 +70,7 @@ export class UserService {
       case 'email':
         if(!param.data) throw new BadRequestException('Invalid search.');
 
-        switcher = await this.prisma.user.findUniqueOrThrow({
+        switcher = await this.prisma.user.findUnique({
           where: { email: param.data }
         });
 
@@ -122,21 +119,23 @@ export class UserService {
         }
         break;
       case undefined:
-        switcher = await this.prisma.user.findUniqueOrThrow({
-          where: { id: req.user.id }
-        });
-        
-        res = {
-          id: switcher.id,
-          name: switcher.name,
-          email: switcher.email,
-          role: switcher.role,
-          totalPosts: switcher.totalPosts,
-          totalUps: switcher.totalUps,
-          totalComments: switcher.totalComments,
-          picture: switcher.picture,
-          createdAt: switcher.createdAt,
-          updatedAt: switcher.updatedAt,
+        if(req) {
+          switcher = await this.prisma.user.findUnique({
+            where: { id: req.user.id }
+          });
+          
+          res = {
+            id: switcher.id,
+            name: switcher.name,
+            email: switcher.email,
+            role: switcher.role,
+            totalPosts: switcher.totalPosts,
+            totalUps: switcher.totalUps,
+            totalComments: switcher.totalComments,
+            picture: switcher.picture,
+            createdAt: switcher.createdAt,
+            updatedAt: switcher.updatedAt,
+          }
         }
         break;
       default:

@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { PostService } from "./post.service";
 import { AuthGuard } from "src/guards/auth.guard";
-import { CreatePostDTO } from "./dto/create-post.dto";
 
 @Controller('post')
 export class PostController {
@@ -11,8 +10,8 @@ export class PostController {
   
   @UseGuards(AuthGuard)
   @Post()
-  async createPost(@Body() body: CreatePostDTO, @Req() req: Request) {
-    return this.postService.createPost(body, req);
+  async createPost(@Body() body: { title: string, body: string }, @Req() req: Request) {
+    return this.postService.createPost(body.title, body.body, req);
   }
 
   @Get(':type?/:data?')

@@ -1,18 +1,16 @@
 import { BadRequestException, Inject, Injectable, UnauthorizedException, forwardRef } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt"
 import { LoginDTO } from "./dto/login.dto";
-import { UserService } from "src/user/user.service";
 import * as bcrypt from "bcrypt";
 import { PrismaService } from "src/prisma/prisma.service";
-import { MailerService } from "@nestjs-modules/mailer";
+// import { MailerService } from "@nestjs-modules/mailer";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
-    @Inject(forwardRef(() => UserService)) private readonly userService,
-    private readonly mailer: MailerService
+    // private readonly mailer: MailerService
   ) {}
 
   createToken(id: string, email: string, role: number) {
@@ -71,36 +69,37 @@ export class AuthService {
 
     return this.createToken(user.id, email, user.role);
   }
+  
+  // not working | [Nest] 16380  - 27/03/2024, 17:02:57   ERROR [MailerService] Transporter is ready ?????????
+  // async forgetPassword(email: string) {
+  //   if(!email) throw new BadRequestException('Invalid data.');
 
-  async forgetPassword(email: string) { // not working | [Nest] 16380  - 27/03/2024, 17:02:57   ERROR [MailerService] Transporter is ready ?????????
-    if(!email) throw new BadRequestException('Invalid data.');
+  //   const user = await this.prisma.user.findUnique({ 
+  //     where: { email: email }
+  //   }) || null;
 
-    try {
-      const emailExist = await this.userService.getUser({ type: 'email', data: email }, null) || null;
+  //   if(user) {
+  //     const token = this.jwt.sign(
+  //       {
+  //         id: user.id,
+  //       },
+  //       {
+  //         expiresIn: '1h',
+  //         subject: user.id,
+  //       },
+  //     )
+        
+  //     await this.mailer.sendMail({
+  //       subject: 'Reset password - Shift News',
+  //       to: email,
+  //       template: 'reset',
+  //       context: {
+  //         name: user.name,
+  //         link: `/reset/${token}`
+  //       }
+  //     });
+  //   }
 
-      const token = this.jwt.sign(
-        {
-          id: emailExist.id,
-        },
-        {
-          expiresIn: '1h',
-          subject: emailExist.id,
-        },
-      )
-      
-      await this.mailer.sendMail({
-        subject: 'Reset password - Shift News',
-        to: email,
-        template: 'reset',
-        context: {
-          name: emailExist.name,
-          link: `/reset/${token}`
-        }
-      });
-    } catch(err) {
-      // PREVENT APP TO NOT CRASH
-    }
-
-    return { message: `A password reset email has been sent to ${email}` };
-  }
+  //   return `A password reset email has been sent to ${email}`;
+  // }
 }

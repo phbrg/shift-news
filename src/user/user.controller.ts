@@ -28,7 +28,7 @@ export class UserController {
   }
 
   @Get(':type?/:data?')
-  async getUser(@Param() param: { type: string, data: string }, @Req() req: Request) {
+  async getUser(@Param() param: { type: string, data: string }, @Req() req: any) {
     return this.userService.getUser(param, req);
   }
 }

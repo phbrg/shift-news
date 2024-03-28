@@ -1,13 +1,13 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreatePostDTO } from "./dto/create-post.dto";
+
 @Injectable()
 export class PostService {
   constructor(
     private readonly prisma: PrismaService,
   ) {}
 
-  async createPost({ title, body }: CreatePostDTO, req: any) {
+  async createPost(title: string, body: string, req: any) {
     return this.prisma.post.create({
       data: {
         title,
