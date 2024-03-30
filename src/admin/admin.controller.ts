@@ -1,10 +1,9 @@
-import { Body, Controller, FileTypeValidator, MaxFileSizeValidator, Param, ParseFilePipe, Put, UploadedFile, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, FileTypeValidator, MaxFileSizeValidator, Param, ParseFilePipe, Put, UploadedFile, UseGuards } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { AuthGuard } from "src/guards/auth.guard";
 import { RoleGuard } from "src/guards/role.guard";
 import { Roles } from "src/decorators/role.decorator";
 import { Role } from "src/enums/role.enum";
-import { EditUserDTO } from "src/user/dto/edit-user.dto";
 
 @UseGuards(AuthGuard, RoleGuard)
 @Roles(Role.Admin)
@@ -14,8 +13,8 @@ export class AdminController {
     private readonly adminService: AdminService
   ) {}
 
-  @Put('user/:id')
-  async editUser(@Param() param: { id: string }, @Body() body: EditUserDTO, @UploadedFile(
+  @Put(':type/:id')
+  async adminEdit(@Param() param: { type: string, id: string }, @Body() body: any, @UploadedFile(
     new ParseFilePipe({
       validators: [
         new FileTypeValidator({ fileType: 'image/*' }),
@@ -24,6 +23,11 @@ export class AdminController {
       fileIsRequired: false
     })
   ) picture?: Express.Multer.File) {
-    return this.adminService.editUser(param.id, body, picture);
+    return this.adminService.adminEdit(param.type, param.id, body, picture);
+  }
+
+  @Delete(':type/:id')
+  async adminDelete(@Param() param: { type: string, id: string }) {
+    return this.adminService.adminDelete(param.type, param.id);
   }
 }

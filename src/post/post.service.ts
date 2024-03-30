@@ -79,7 +79,7 @@ export class PostService {
     if(!id || !body || !body.title && !body.body) throw new BadRequestException('Invalid data.');
 
     const post = await this.prisma.post.findUnique({
-      where: { id: id }
+      where: { id }
     }) || null;
     if(!post) throw new BadRequestException('Inavlid post.');
     if(post.userId && post.userId !== req.user.id && req.user.role !== 2 || !post.userId && req.user.role !== 2) throw new ForbiddenException('Invalid post.'); // is admin || owner
@@ -92,25 +92,25 @@ export class PostService {
 
     return this.prisma.post.update({
       data: newPost,
-      where: { id: id }
+      where: { id }
     });
   }
 
   async deletePost(id: string, req: any) {
     const post = await this.prisma.post.findUnique({
-      where: { id: id }
+      where: { id }
     }) || null;
     if(!post) throw new BadRequestException('Invalid Post.');
     if(post.userId && post.userId !== req.user.id && req.user.role == 2 || !post.userId && req.user.role !== 2) throw new ForbiddenException('You cant delete this post.'); // is admin || owner
 
     return this.prisma.post.delete({
-      where:{ id: id }
+      where:{ id }
     });
   }
 
   async upPost(id: string, req: any) {
     const post = await this.prisma.post.findUnique({
-      where: { id: id }
+      where: { id }
     }) || null;
     if(!post) throw new NotFoundException('Post not found.');
 
@@ -123,7 +123,7 @@ export class PostService {
     if(upExist) {
       await this.prisma.post.update({
         data: { totalUps: { decrement: 1 } },
-        where: { id: id }
+        where: { id }
       });
       if(post.userId) {
         await this.prisma.user.update({
@@ -141,7 +141,7 @@ export class PostService {
     } else {
       await this.prisma.post.update({
         data: { totalUps: { increment: 1 } },
-        where: { id: id }
+        where: { id }
       });
       if(post.userId) {
         await this.prisma.user.update({

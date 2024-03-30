@@ -82,7 +82,7 @@ export class CommentService {
     if(!body) throw new BadRequestException('Invalid data.');
 
     const commentExist = await this.prisma.comment.findUnique({
-      where: { id: id }
+      where: { id }
     }) || null;
     if(!commentExist) throw new BadRequestException('Invalid comment.');
     if(commentExist.userId && commentExist.userId !== req.user.id && req.user.role !== 2 || !commentExist.userId && req.user.role !== 2) throw new ForbiddenException('Invalid comment.'); // is admin || owner
@@ -94,19 +94,19 @@ export class CommentService {
 
     return this.prisma.comment.update({
       data: newComment,
-      where: { id: id }
+      where: { id }
     });
   }
 
   async deleteComment(id: string, req: any) {
     const comment = await this.prisma.comment.findUnique({
-      where: { id: id }
+      where: { id }
     }) || null;
     if(!comment) throw new BadRequestException('Invalid comment.');
     if(comment.userId && comment.userId !== req.user.id && req.user.role !== 2 || !comment.userId && req.user.role !== 2) throw new BadRequestException('Invalid comment.'); // is admin || owner
 
     return this.prisma.comment.delete({
-      where: { id: id }
+      where: { id }
     });
   }
 }

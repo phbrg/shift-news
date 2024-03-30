@@ -177,13 +177,13 @@ export class UserService {
 
   async deleteUser(id: string, req: any) {
     const userExist = await this.prisma.user.findUnique({
-      where: { id: id }
+      where: { id }
     }) || null;
     if(!userExist) throw new BadRequestException('Invalid user.');
 
     if(id && req.user.role == 2) {
       return this.prisma.user.delete({
-        where: { id: id }
+        where: { id }
       });
     } else if(!id || id == req.user.id) {
       return this.prisma.user.delete({
