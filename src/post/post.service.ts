@@ -121,10 +121,8 @@ export class PostService {
       },
     }) || null;
     if(upExist) {
-      await this.prisma.post.update({
-        data: { totalUps: { decrement: 1 } },
-        where: { id }
-      });
+      await this.prisma.up.delete({ where: { id: upExist.id } });
+      await this.prisma.post.update({ data: { totalUps: { decrement: 1 } }, where: { id } });
       if(post.userId) {
         await this.prisma.user.update({
           data: { totalUps: { decrement: 1 } },
@@ -133,31 +131,19 @@ export class PostService {
       }
 
       return { 
-      message: 'Up deleted.', 
-      up: await this.prisma.up.delete({
-        where: { id: upExist.id }
-      }) 
-    }
+      message: 'Up deleted.'
+      }
     } else {
-      await this.prisma.post.update({
-        data: { totalUps: { increment: 1 } },
-        where: { id }
-      });
+      await this.prisma.up.create({ data: { postId: id, userId: req.user.id } });
+      await this.prisma.post.update({ data: { totalUps: { increment: 1 } }, where: { id } });
       if(post.userId) {
         await this.prisma.user.update({
           data: { totalUps: { increment: 1 } },
           where: { id: post.userId }
         });
       }
-  
       return { 
-        message: 'Up created.', 
-        up: await this.prisma.up.create({
-          data: {
-            postId: id,
-            userId: req.user.id
-          }
-        }) 
+        message: 'Up created.'
       }
     }
   }

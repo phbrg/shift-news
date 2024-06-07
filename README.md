@@ -1,75 +1,432 @@
-# Under development
+# Shift News
+> Shift News is a "blog" API that copies [tab news](https://www.tabnews.com.br/)/[dev.to](https://dev.to).
 
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## Developers
+- Fullstack
+	- Pedro Henrique, [Github](https://github.com/phbrg)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Technologies
+- Backend
+	- Nest (Node.js) | Prisma | PostgreSQL | TypeScript
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> Other packages were used in the project, you can check each packages [here](https://github.com/phbrg/shift-news/blob/master/package.json)
 
-## Description
+## Docs
+### Backend
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### How to run the api
 
-## Installation
+To run the backend api you need:
+- Node.js
+- PostgreSQL
+- Git or Yarn
 
-```bash
-$ npm install
+First you need to clone the project using:
+
+<code>git clone https://github.com/phbrg/shift-news.git</code>
+
+After clone run:
+
+<code>npm i</code>
+
+to install the dependencies
+
+Then create and <code>.env</code> archive in the project root folder and add these variables:
+```JSON
+DATABASE_URL="YOURURL"
+JWT_KEY="YOURJWTKEY"
+EMAIL="OPTIONAL (email service)"
+PASSWORD="OPTIONAL (email service)"
 ```
+> You need to create an database on pgAdmin with the right name
 
-## Running the app
+Then you can run using
 
-```bash
-# development
-$ npm run start
+<code>npm run dev</code>
 
-# watch mode
-$ npm run start:dev
+After all the app should run, if not you can contact me.
 
-# production mode
-$ npm run start:prod
+### API Functions
+
+### Auth
+
+#### Register user
+- Route: <code>/auth/register</code>
+- Method: <code>POST</code>
+- Body:
+```JSON
+{
+  "name": "admin",
+  "email": "admin@admin.com",
+  "password": "Admin1234!",
+  "confirmPassword": "Admin1234!"
+}
 ```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "id": "c6176236-b048-4a02-93e1-7cf9c7bb0f90",
+      "name": "admin",
+      "email": "admin@admin.com"
+    }
+	```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+#### Login
+- Route: <code>/auth/login</code>
+- Method: <code>POST</code>
+- Body:
+```JSON
+{
+  "email": "admin@admin.com",
+  "password": "Admin1234!",
+}
 ```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "token": "XXXXXX",
+      "user": {
+          "id": "uuid",
+          "email": "admin@admin.com",
+          "role": 1
+      }
+    }
+	```
 
-## Support
+#### Forgetpassword (email service not working)
+<code>under development</code>
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Users
 
-## Stay in touch
+#### Get user
+*methods*
+- id
+- email
+- name
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Route: <code>/user/method/data</code>
+- Method: <code>GET</code>
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "id": "uuid",
+      "name": "admin",
+      "email": "admin@admin.com",
+      "role": 1,
+      "totalPosts": 0,
+      "totalUps": 0,
+      "totalComments": 0,
+      "picture": null,
+      "createdAt": "9999-99-99T99:99:99.999Z",
+      "updatedAt": "9999-99-99T99:99:99.999Z"
+    }
+  ```
 
+#### Delete user
+- Route: <code>/user/</code>
+- Method: <code>DELETE</code>
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "id": "uuid",
+      "name": "admin",
+      "email": "admin@admin.com",
+      "role": 1,
+      "totalPosts": 0,
+      "totalUps": 0,
+      "totalComments": 0,
+      "picture": null,
+      "createdAt": "9999-99-99T99:99:99.999Z",
+      "updatedAt": "9999-99-99T99:99:99.999Z"
+    }
+  ```
+
+#### Edit user
+- Route: <code>/user/</code>
+- Method: <code>PUT</code>
+- Body:
+```JSON
+{
+  "name": "admin"
+  ...
+}
+```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "id": "uuid",
+      "name": "admin",
+      "email": "admin@admin.com",
+      "role": 1,
+      "totalPosts": 0,
+      "totalUps": 0,
+      "totalComments": 0,
+      "picture": null,
+      "createdAt": "9999-99-99T99:99:99.999Z",
+      "updatedAt": "9999-99-99T99:99:99.999Z"
+    }
+  ```
+
+### Posts
+
+#### Create post
+- Route: <code>/post/</code>
+- Method: <code>POST</code>
+- Body:
+```JSON
+{
+  "title": "post title",
+  "body": "post body"
+}
+```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "id": "uuid",
+      "name": "admin",
+      "email": "admin@admin.com",
+      "role": 1,
+      "totalPosts": 0,
+      "totalUps": 0,
+      "totalComments": 0,
+      "picture": null,
+      "createdAt": "9999-99-99T99:99:99.999Z",
+      "updatedAt": "9999-99-99T99:99:99.999Z"
+    }
+  ```
+
+#### Get post
+*methods*
+- id
+- title
+- body
+- up
+- comment
+
+- Route: <code>/post/method?/data?</code>
+- Method: <code>GET</code>
+- Body:
+```JSON
+{
+  "title": "post title",
+  "body": "post body"
+}
+```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    [
+      {
+          "id": "uuid",
+          "title": "post title",
+          "body": "post body",
+          "totalUps": 999,
+          "totalComments": 999,
+          "createdAt": "9999-99-99T99:99:99.999Z",
+          "updatedAt": "9999-99-99T99:99:99.999Z",
+          "userId": "uuid"
+      },
+      ...
+    ]
+  ```
+
+#### Update post
+- Route: <code>/post/id</code>
+- Method: <code>PUT</code>
+- Body:
+```JSON
+{
+  "title": "post title",
+  ...
+}
+```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+        "id": "uuid",
+        "title": "post title",
+        "body": "post body",
+        "totalUps": 999,
+        "totalComments": 999,
+        "createdAt": "9999-99-99T99:99:99.999Z",
+        "updatedAt": "9999-99-99T99:99:99.999Z",
+        "userId": "uuid"
+    }
+  ```
+
+#### Delete post
+- Route: <code>/post/id</code>
+- Method: <code>DELETE</code>
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+        "id": "uuid",
+        "title": "post title",
+        "body": "post body",
+        "totalUps": 999,
+        "totalComments": 999,
+        "createdAt": "9999-99-99T99:99:99.999Z",
+        "updatedAt": "9999-99-99T99:99:99.999Z",
+        "userId": "uuid"
+    }
+  ```
+
+#### Up post
+- Route: <code>/post/up/id</code>
+- Method: <code>POST</code>
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    { 
+      "message": "Up created"
+    }
+  ```
+  or
+  - Status: <code>200</code>
+	```JSON
+    { 
+      "message": "Up deleted"
+    }
+  ```
+
+### Comments
+
+#### Create comment
+- Route: <code>/comment/id</code>
+- Method: <code>POST</code>
+- Body:
+  ```JSON
+    {
+      "body": "comment content"
+    }
+  ```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+        "id": "uuid",
+        "body": "comment body",
+        "postId": "uuid",
+        "userId": "uuid",
+        "createdAt": "9999-99-99T99:99:99.999Z",
+        "updatedAt": "9999-99-99T99:99:99.999Z"
+    }
+  ```
+
+#### Get comment
+*methods*
+- id
+- user
+- post
+- body
+
+- Route: <code>/comment/method?/data</code>
+- Method: <code>GET</code>
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    [
+      {
+        "id": "uuid",
+        "body": "comment body",
+        "postId": "uuid",
+        "userId": "uuid",
+        "createdAt": "9999-99-99T99:99:99.999Z",
+        "updatedAt": "9999-99-99T99:99:99.999Z"
+      },
+      ...
+    ]
+  ```
+
+#### Update comment
+- Route: <code>/comment/id</code>
+- Method: <code>PUT</code>
+- Body:
+  ```JSON
+    {
+      "body": "comment content"
+    }
+  ```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+        "id": "uuid",
+        "body": "comment body",
+        "postId": "uuid",
+        "userId": "uuid",
+        "createdAt": "9999-99-99T99:99:99.999Z",
+        "updatedAt": "9999-99-99T99:99:99.999Z"
+    }
+  ```
+
+#### Delete comment
+- Route: <code>/comment/id</code>
+- Method: <code>DELETE</code>
+- Body:
+  ```JSON
+    {
+      "body": "comment content"
+    }
+  ```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+        "id": "uuid",
+        "body": "comment body",
+        "postId": "uuid",
+        "userId": "uuid",
+        "createdAt": "9999-99-99T99:99:99.999Z",
+        "updatedAt": "9999-99-99T99:99:99.999Z"
+    }
+  ```
+
+### Admin
+
+### Methods
+- comment
+- post
+- user
+
+#### Edit admin
+- Route: <code>/admin/method/id</code>
+- Method: <code>PUT</code>
+- Body:
+  ```JSON
+    {
+      "content": "content"
+    }
+  ```
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "value": "value",
+      "value": "value",
+    }
+  ```
+
+#### Delete admin
+- Route: <code>/admin/method/id</code>
+- Method: <code>DELETE</code>
+- Response:
+	- Status: <code>200</code>
+	```JSON
+    {
+      "value": "value",
+      "value": "value",
+    }
+  ```
+	
 ## License
-
-Nest is [MIT licensed](LICENSE).
+This project is under [MIT License](LICENSE). See [LICENSE](LICENSE)   
+for more details.

@@ -14,8 +14,8 @@ export class UserService {
 
   async registerUser({ name, email, password, confirmPassword }: CreateUserDTO) {
     if(password !== confirmPassword) throw new BadRequestException('Password does not match.');
-
-    const emailAlredyRegistered = this.prisma.user.findUnique({
+    
+    const emailAlredyRegistered = await this.prisma.user.findUnique({
       where: { email: email }
     });
     if(emailAlredyRegistered) throw new BadRequestException('Email alredy registered.');
@@ -176,9 +176,9 @@ export class UserService {
   }
 
   async deleteUser(id: string, req: any) {
-    const userExist = await this.prisma.user.findUnique({
-      where: { id }
-    }) || null;
+    let userExist;
+    if(id) userExist = await this.prisma.user.findUnique({ where: { id } }) || null;
+    if(req.user.id) userExist = await this.prisma.user.findUnique({ where: { id: req.user.id } }) || null;
     if(!userExist) throw new BadRequestException('Invalid user.');
 
     if(id && req.user.role == 2) {

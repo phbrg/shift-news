@@ -35,8 +35,8 @@ model Post {
   updatedAt     DateTime  @default(now())
   User          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId        String?
-  ups           Up[]
-  comments      Comment[]
+  Up           Up[]
+  Comment      Comment[]
 }
 
 model Up {
